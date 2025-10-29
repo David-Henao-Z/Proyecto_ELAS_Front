@@ -17,7 +17,7 @@ const RegisterPage: React.FC = () => {
     confirmPassword: '',
     telefono: '',
     carrera: '',
-    rol_id: 1, // Por defecto rol de estudiante
+    rol_id: 3, // Por defecto rol de estudiante (según la BD)
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -212,7 +212,7 @@ const RegisterPage: React.FC = () => {
                 type="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                placeholder="tu-email@ejemplo.com"
+                placeholder="Ingresa tu email"
                 className={`mt-1 border-elas-navy/30 focus:border-elas-blue focus:ring-elas-blue ${formErrors.email ? 'border-red-500' : ''}`}
                 disabled={isLoading}
               />
@@ -267,8 +267,9 @@ const RegisterPage: React.FC = () => {
                 className="mt-1 w-full rounded-md border border-elas-navy/30 bg-white px-3 py-2 text-sm focus:border-elas-blue focus:ring-elas-blue disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={isLoading}
               >
-                <option value={1}>Estudiante</option>
-                <option value={2}>Tutora</option>
+                <option value={1}>Administrador</option>
+                <option value={2}>Profesor</option>
+                <option value={3}>Estudiante</option>
               </select>
             </div>
 

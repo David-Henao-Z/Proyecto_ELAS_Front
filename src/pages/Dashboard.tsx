@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { logoutAsync } from '../slices/authReducer';
 import TutoriasPage from './TutoriasPage';
+import EstadoAnimoPage from './EstadoAnimoPage';
+import CronogramaPage from './CronogramaPage';
+import EstadisticasPage from './EstadisticasPage';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -16,36 +19,38 @@ const Dashboard: React.FC = () => {
     navigate('/', { replace: true });
   };
 
-  const sidebarItems = [
-    { id: 'cronograma', label: 'Cronograma', icon: '📅' },
-    { id: 'estadisticas', label: 'Estadísticas', icon: '📊' },
-    { id: 'estado-animo', label: 'Estado de Ánimo', icon: '💝' },
-    { id: 'tutorias', label: 'Tutorías', icon: '👥' },
+  // Filtrar items del sidebar basado en el rol del usuario
+  // Solo roles 1 (Administrador) y 2 (Profesor) pueden ver Estadísticas
+  const canViewStatistics = user?.rol_id === 1 || user?.rol_id === 2;
+
+  const allSidebarItems = [
+    { id: 'cronograma', label: 'Cronograma', icon: '📅', roles: [1, 2, 3] },
+    { id: 'estadisticas', label: 'Estadísticas', icon: '📊', roles: [1, 2] },
+    { id: 'estado-animo', label: 'Estado de Ánimo', icon: '💝', roles: [1, 2, 3] },
+    { id: 'tutorias', label: 'Tutorías', icon: '👥', roles: [1, 2, 3] },
   ];
+
+  const sidebarItems = allSidebarItems.filter(item => 
+    item.roles.includes(user?.rol_id || 3)
+  );
 
   const renderContent = () => {
     switch (activeSection) {
       case 'cronograma':
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-caprasimo text-elas-navy mb-4">Cronograma</h2>
-            <p className="font-questrial text-gray-600">Aquí puedes ver tu cronograma de actividades.</p>
-          </div>
-        );
+        return <CronogramaPage />;
       case 'estadisticas':
+        // Solo mostrar estadísticas si el usuario tiene permisos
+        if (canViewStatistics) {
+          return <EstadisticasPage />;
+        }
         return (
           <div className="p-6">
-            <h2 className="text-2xl font-caprasimo text-elas-navy mb-4">Estadísticas</h2>
-            <p className="font-questrial text-gray-600">Visualiza tus estadísticas y progreso.</p>
+            <h2 className="text-2xl font-caprasimo text-elas-navy mb-4">Acceso Denegado</h2>
+            <p className="font-questrial text-gray-600">No tienes permisos para ver esta sección.</p>
           </div>
         );
       case 'estado-animo':
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-caprasimo text-elas-navy mb-4">Estado de Ánimo</h2>
-            <p className="font-questrial text-gray-600">Registra y monitorea tu estado emocional.</p>
-          </div>
-        );
+        return <EstadoAnimoPage />;
       case 'tutorias':
         return <TutoriasPage />;
       default:

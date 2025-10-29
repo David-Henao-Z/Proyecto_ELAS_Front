@@ -33,7 +33,29 @@ class ApiService {
         return response;
       },
       (error) => {
+        console.log('🚨 API Error Details:', {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          url: error.config?.url,
+          method: error.config?.method,
+          headers: error.config?.headers
+        });
+        
+        // Solo redirigir al login si es realmente un error de autenticación
         if (error.response?.status === 401) {
+          console.log('🔒 401 Unauthorized detected');
+          console.log('🔑 Current token:', localStorage.getItem('token') ? 'EXISTS' : 'NOT_FOUND');
+          console.log('👤 Current user:', localStorage.getItem('user') ? 'EXISTS' : 'NOT_FOUND');
+          
+          // Verificar si es el endpoint de estados de ánimo
+          if (error.config?.url?.includes('estados-animo')) {
+            console.log('❗ Error en endpoint de estados de ánimo - verificar backend');
+            // No redirigir inmediatamente para este endpoint
+            return Promise.reject(error);
+          }
+          
+          console.log('🚪 Redirecting to login');
           // Token expirado o no válido
           localStorage.removeItem('token');
           localStorage.removeItem('user');
@@ -56,9 +78,25 @@ class ApiService {
   // Métodos HTTP genéricos
   async get<T>(url: string, params?: any): Promise<ApiResponse<T>> {
     try {
+      console.log('🌐 ApiService.GET - URL:', url);
+      console.log('🌐 ApiService.GET - Params:', params);
+      
       const response = await this.api.get<ApiResponse<T>>(url, { params });
-      return response.data;
+      
+      console.log('📥 ApiService.GET - Response completa:', response);
+      console.log('📥 ApiService.GET - Response.data:', response.data);
+      console.log('📥 ApiService.GET - Response.status:', response.status);
+      
+      // Agregar el código de estado a la respuesta como en POST
+      const result = {
+        ...response.data,
+        statusCode: response.status
+      };
+      
+      console.log('📤 ApiService.GET - Retornando:', result);
+      return result;
     } catch (error: any) {
+      console.error('❌ ApiService.GET - Error:', error);
       return this.handleError(error);
     }
   }

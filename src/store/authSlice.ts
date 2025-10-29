@@ -3,8 +3,18 @@ import { authService } from '../services';
 import type { AuthState, LoginCredentials, RegisterData } from '../interfaces';
 
 // Estado inicial
+const getUserFromStorage = () => {
+  try {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  } catch (error) {
+    console.error('Error parsing user from localStorage:', error);
+    return null;
+  }
+};
+
 const initialState: AuthState = {
-  user: null,
+  user: getUserFromStorage(),
   token: authService.getToken(),
   isAuthenticated: authService.isAuthenticated(),
   isLoading: false,
@@ -75,6 +85,9 @@ const authSlice = createSlice({
         state.token = action.payload.token || null;
         state.isAuthenticated = true;
         state.error = null;
+        
+        // Log para debugging
+        console.log('🏪 AuthSlice - Usuario guardado en store:', state.user);
       })
       .addCase(loginAsync.rejected, (state, action) => {
         state.isLoading = false;

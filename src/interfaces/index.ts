@@ -3,3 +3,4 @@ export * from './auth';
 export * from './tutoria';
 export * from './academic';
 export * from './common';
+export * from './estadoAnimo';
